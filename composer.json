@@ -1,0 +1,21 @@
+{
+    "name": "codewiser/belongs-to-many",
+    "description": "Extended BelongsToMany for Laravel",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Codewiser\\BelongsToMany\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "pm",
+            "email": "pm@101media.ru"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "laravel/framework": ">=10.0"
+    }
+}
