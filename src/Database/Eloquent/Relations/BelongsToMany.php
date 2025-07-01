@@ -1,6 +1,6 @@
 <?php
 
-namespace Codewiser\BelongsToMany;
+namespace Codewiser\Database\Eloquent\Relations;
 
 /**
  * Extended BelongsToMany.

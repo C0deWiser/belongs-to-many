@@ -1,7 +1,8 @@
 <?php
 
-namespace Codewiser\BelongsToMany;
+namespace Codewiser\Database\Eloquent\Concerns;
 
+use Codewiser\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 

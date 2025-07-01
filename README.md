@@ -8,45 +8,6 @@ pivot between them.
 For example: Organization, User with `role` attribute and organization-user 
 pivot with `role` attribute too.
 
-User with role attribute:
-
-```php
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-
-/**
- * @property string $role User role in application.
- */
-class User extends Model
-{
-    public function organizations(): BelongsToMany 
-    {
-        return $this
-            ->belongsToMany(Organization::class)
-            ->withPivot('role');
-    }
-}
-```
-
-Organization model:
-
-```php
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-
-class Organization extends Model
-{
-    public function users(): BelongsToMany 
-    {
-        return $this
-            ->belongsToMany(User::class)
-            ->withPivot('role');
-    }
-}
-```
-
 How would we get all organization `managers` and application `admins`?
 
 ```php
@@ -57,15 +18,6 @@ Organization::query()->whereHas('users',
         ->where('users.role', 'admin')
         ->where('organization_user.role', 'manager')
 );
-```
-
-Or such:
-
-```php
-$organization
-    ->users()
-    ->where('users.role', 'admin')
-    ->where('organization_user.role', 'manager');
 ```
 
 > It is unsafe to use unqualified column name as `role` attribute is ambiguous.
@@ -81,11 +33,11 @@ What is annoying?
 
 Solution is to extend `BelongToMany`.
 
-Extend model with `Codewiser\BelongsToMany\HasRelationships` trait that 
+Extend model with `\Codewiser\Database\Eloquent\Concerns\HasRelationships` trait that 
 provides extended `BelongsToMany` object.
 
 If you want to make custom Builder — use extended 
-`Codewiser\BelongsToMany\Builder` too. Extended Builder overrides `has*` 
+`\Codewiser\Database\Eloquent\Builder` too. Extended Builder overrides `has*` 
 methods family.
 
 All this has sense only for belongs-to-many relationships.
@@ -93,8 +45,8 @@ All this has sense only for belongs-to-many relationships.
 User model:
 
 ```php
-use Codewiser\BelongsToMany\BelongsToMany;
-use Codewiser\BelongsToMany\HasRelationships;
+use Codewiser\Database\Eloquent\Concerns\HasRelationships;
+use Codewiser\Database\Eloquent\Relations\BelongsToMany;
 
 use Illuminate\Database\Eloquent\HasBuilder;
 use Illuminate\Database\Eloquent\Model;
@@ -123,7 +75,7 @@ class User extends Model
 User builder:
 
 ```php
-use Codewiser\BelongsToMany\Builder;
+use Codewiser\Database\Eloquent\Builder;
 
 /**
  * @extends Builder<User::class>
@@ -142,8 +94,8 @@ class UserBuilder extends Builder
 Organization model:
 
 ```php
-use Codewiser\BelongsToMany\BelongsToMany;
-use Codewiser\BelongsToMany\HasRelationships;
+use Codewiser\Database\Eloquent\Concerns\HasRelationships;
+use Codewiser\Database\Eloquent\Relations\BelongsToMany;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Collection;
@@ -168,7 +120,7 @@ class Organization extends Model
 Organization builder:
 
 ```php
-use Codewiser\BelongsToMany\Builder;
+use Codewiser\Database\Eloquent\Builder;
 
 /**
  * @extends Builder<Organization::class>
@@ -219,7 +171,7 @@ class ParticipationBuilder extends Builder
 Now, build a query:
 
 ```php
-use Codewiser\BelongsToMany\BelongsToMany;
+use Codewiser\Database\Eloquent\Relations\BelongsToMany;
 
 Organization::query()->whereHas('users', 
     fn(BelongsToMany|UserBuilder $builder) => $builder
@@ -231,7 +183,7 @@ Organization::query()->whereHas('users',
 Or:
 
 ```php
-use Codewiser\BelongsToMany\BelongsToMany;
+use Codewiser\Database\Eloquent\Relations\BelongsToMany;
 
 Organization::query()->whereHas('users', 
     fn(BelongsToMany|UserBuilder $builder) => $builder
