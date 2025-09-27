@@ -10,6 +10,8 @@ use Illuminate\Database\Eloquent\Model;
  * Replace default BelongsToMany with extended one.
  *
  * @method BelongsToMany belongsToMany($related, $table = null, $foreignPivotKey = null, $relatedPivotKey = null, $parentKey = null, $relatedKey = null, $relation = null)
+ *
+ * @deprecated Not necessary, we have added the macro to the base BelongsToMany class.
  */
 trait HasRelationships
 {

@@ -1,11 +1,8 @@
 <?php
-
 namespace Codewiser\Database\Eloquent;
 
-use Illuminate\Database\Eloquent\Relations\Relation;
-
 /**
- * @method $this pivot(\Closure $closure) (Just to help PhpStorm)
+ * @method $this pivot(\Closure $closure) Constrain query with a pivot values.
  *
  * @template TModel of \Illuminate\Database\Eloquent\Model
  *
@@ -23,8 +20,6 @@ abstract class Builder extends \Illuminate\Database\Eloquent\Builder
      * @param  \Closure(static, \Illuminate\Database\Eloquent\Relations\Relation): static|null  $callback
      *
      * @return $this
-     *
-     * @throws \RuntimeException
      */
     public function has($relation, $operator = '>=', $count = 1, $boolean = 'and', ?\Closure $callback = null): static
     {
@@ -35,7 +30,7 @@ abstract class Builder extends \Illuminate\Database\Eloquent\Builder
             }
         }
 
-        if ($callback && $relation instanceof Relation) {
+        if ($callback && $relation instanceof \Illuminate\Database\Eloquent\Relations\Relation) {
 
             $callback = function ($builder) use ($callback, $relation) {
 

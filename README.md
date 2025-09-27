@@ -1,215 +1,89 @@
 # Extended BelongsToMany
 
-## Problem
+As we know, `BelongsToMany` relation connects two models with a pivot table 
+between. In simple cases, the pivot table has just two columns — foreign 
+keys. In more complex cases, the pivot table has additional columns, 
+and we want to constrain relation with pivot values.
 
-Let's say we have two Models with belongs-to-many relationship and reach 
-pivot between them.
+We invite use to use custom builders, extended from 
+`\Codewiser\Database\Eloquent\Builder` (that extends base eloquent 
+builder).
 
-For example: Organization, User with `role` attribute and organization-user 
-pivot with `role` attribute too.
+With that builder all `*has` methods, such as `whereHas`,
+`whereDoesntHave`, etc., will send to a callback not a builder instance, but 
+`BelongsToMany` object, so you, at least, can use `wherePivot` method to 
+constrain a query.
 
-How would we get all organization `managers` and application `admins`?
+also, the package provides new method for `BelongsToMany` builder. The `pivot` 
+method provides access to a pivot builder for you to build query.
 
+_before_
 ```php
-use Illuminate\Contracts\Database\Eloquent\Builder;
+$user->organizations()->wherePivot('role', 'accountant');
+```
 
-Organization::query()->whereHas('users', 
-    fn(Builder $builder) => $builder
-        ->where('users.role', 'admin')
-        ->where('organization_user.role', 'manager')
+_after_
+```php
+$user->organizations()->pivot(
+    fn(EmployeeBuilder $builder) => $builder->whereRole('accountant')
 );
 ```
 
-> It is unsafe to use unqualified column name as `role` attribute is ambiguous.
+Of course, this have sense only if you use custom builder for a pivot model. 
+But what about next example? Here you have to qualify column name hardcoding?
 
-What is annoying?
+_before_
+```php
+Organization::query()->whereHas('users',
+    fn(Builder $builder) => $builder
+        // HARDCODED
+        ->where('organization_user.role', 'accountant')
+)
+```
 
-1. We should explicitly define table name.
-2. The closure argument is an Eloquent Builder, not a Relation 
-   instance: so we can't call `wherePivot` method.
-3. If we have Custom Builder for the Pivot table — we can't use it here. 
+_after_
+```php
+Organization::query()->whereHas('users',
+    fn(BelongsToMany $builder) => $builder->wherePivot('role', 'accountant')
+);
+```
 
-## Solution
+_if pivot has custom query builder_
+```php
+Organization::query()->whereHas('users',
+    fn(BelongsToMany $builder) => $builder->pivot(
+        fn(EmployeeBuilder $builder) => $builder->whereRole('accountant')
+    )
+);
+```
 
-Solution is to extend `BelongToMany`.
+## Implementation
 
-Extend model with `\Codewiser\Database\Eloquent\Concerns\HasRelationships` trait that 
-provides extended `BelongsToMany` object.
-
-If you want to make custom Builder — use extended 
-`\Codewiser\Database\Eloquent\Builder` too. Extended Builder overrides `has*` 
-methods family.
-
-All this has sense only for belongs-to-many relationships.
-
-User model:
+You MUST use a custom builder for both models that consists in 
+`BelongsToMany` relation. These custom builders MUST extend 
+`\Codewiser\Database\Eloquent\Builder`.
 
 ```php
-use Codewiser\Database\Eloquent\Concerns\HasRelationships;
-use Codewiser\Database\Eloquent\Relations\BelongsToMany;
+namespace App\Builders;
 
-use Illuminate\Database\Eloquent\HasBuilder;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
+use Codewiser\Database\Eloquent\Builder as ExtendedBuilder;
 
-/**
- * @property string $role User role in application.
- */
-class User extends Model
+class OrganizationBuilder extends ExtendedBuilder
 {
-    /** @use HasBuilder<UserBuilder::class> */
-    use HasBuilder;
-    use HasRelationships;
-    
-    protected static string $builder = UserBuilder::class;
-    
-    public function organizations(): BelongsToMany|OrganizationBuilder
-    {
-        return $this
-            ->belongsToMany(Organization::class, Participation::class)
-            ->withPivot('role');
-    }
+    //
 }
 ```
 
-User builder:
-
 ```php
-use Codewiser\Database\Eloquent\Builder;
+namespace App\Models;
 
-/**
- * @extends Builder<User::class>
- */
-class UserBuilder extends Builder 
-{
-   public function whereRole($role): static 
-   {
-       $role = is_array($role) ? $role : func_get_args();
-       
-       return $this->whereIn($this->qualifyColumn('role'), $role);
-   }
-}
-```
-
-Organization model:
-
-```php
-use Codewiser\Database\Eloquent\Concerns\HasRelationships;
-use Codewiser\Database\Eloquent\Relations\BelongsToMany;
-
+use App\Builders\OrganizationBuilder;
+use Illuminate\Database\Eloquent\Attributes\UseEloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Collection;
 
+#[UseEloquentBuilder(OrganizationBuilder::class)]
 class Organization extends Model
 {
-    /** @use HasBuilder<OrganizationBuilder::class> */
-    use HasBuilder;
-    use HasRelationships;
-    
-    protected static string $builder = OrganizationBuilder::class;
-    
-    public function users(): BelongsToMany|UserBuilder
-    {
-        return $this
-            ->belongsToMany(User::class, Participation::class)
-            ->withPivot('role');
-    }
+
 }
 ```
-
-Organization builder:
-
-```php
-use Codewiser\Database\Eloquent\Builder;
-
-/**
- * @extends Builder<Organization::class>
- */
-class OrganizationBuilder extends Builder 
-{
-   //
-}
-```
-
-Pivot model:
-
-```php
-use Illuminate\Database\Eloquent\HasBuilder;
-use Illuminate\Database\Eloquent\Relations\Pivot;
-
-/**
- * @property string $role User role in organization.
- */
-class Participation extends Pivot
-{
-    /** @use HasBuilder<ParticipationBuilder::class> */
-    use HasBuilder;
-    
-    protected $table = 'organization_user';
-    
-    protected static string $builder = ParticipationBuilder::class;
-}
-```
-
-```php
-use Illuminate\Database\Eloquent\Builder;
-
-/**
- * @extends Builder<Participation::class>
- */
-class ParticipationBuilder extends Builder 
-{
-   public function whereRole($role): static 
-   {
-       $role = is_array($role) ? $role : func_get_args();
-       
-       return $this->whereIn($this->qualifyColumn('role'), $role);
-   }
-}
-```
-
-Now, build a query:
-
-```php
-use Codewiser\Database\Eloquent\Relations\BelongsToMany;
-
-Organization::query()->whereHas('users', 
-    fn(BelongsToMany|UserBuilder $builder) => $builder
-        ->whereRole('admin')
-        ->wherePivot('role', 'manager')
-);
-```
-
-Or:
-
-```php
-use Codewiser\Database\Eloquent\Relations\BelongsToMany;
-
-Organization::query()->whereHas('users', 
-    fn(BelongsToMany|UserBuilder $builder) => $builder
-        ->whereRole('admin')
-        ->pivot(fn(ParticipationBuilder $builder) => $builder
-            ->whereRole('manager')
-        )
-);
-```
-
-Or such:
-
-```php
-$organization
-    ->users()
-    ->whereRole('admin')
-    ->pivot(fn(ParticipationBuilder $builder) => $builder
-        ->whereRole('manager')
-    )
- );
-```
-
-What is surprising?
-
-1. The closure argument is a BelongsToMany object: so we can call `wherePivot` 
-   method if we want to.
-2. Extended BelongsToMany provides `pivot` method that is applied to a pivot 
-   table.
-3. The pivot closure argument is real pivot builder.

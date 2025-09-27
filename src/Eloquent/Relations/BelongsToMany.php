@@ -9,13 +9,15 @@ namespace Codewiser\Database\Eloquent\Relations;
  * @template TDeclaringModel of \Illuminate\Database\Eloquent\Model
  *
  * @extends \Illuminate\Database\Eloquent\Relations\Relation<TRelatedModel, TDeclaringModel, \Illuminate\Database\Eloquent\Collection<int, TRelatedModel>>
+ *
+ * @deprecated Use base BelongsToMany with macro
  */
 class BelongsToMany extends \Illuminate\Database\Eloquent\Relations\BelongsToMany
 {
     /**
      * Get pivot query builder.
      */
-    public function pivot(\Closure $closure): static
+    public function pivoted(\Closure $closure): static
     {
         $using = $this->getPivotClass();
 
