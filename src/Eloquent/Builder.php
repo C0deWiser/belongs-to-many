@@ -1,8 +1,12 @@
 <?php
 namespace Codewiser\Database\Eloquent;
 
+use Codewiser\Database\PivotServiceProvider;
+
 /**
  * @method $this pivot(\Closure $closure) Constrain query with a pivot values.
+ *
+ * @see PivotServiceProvider::boot()
  *
  * @template TModel of \Illuminate\Database\Eloquent\Model
  *

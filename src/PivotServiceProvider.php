@@ -15,16 +15,14 @@ class PivotServiceProvider extends ServiceProvider
 
             /** @var BelongsToMany $this */
 
+            // Get pivot class
             $using = $this->getPivotClass();
 
-            // Instantiate pivot model
-            $pivot = new $using;
-
-            // Create pivot query builder
+            // Instantiate pivot query builder, replacing base query
             $pivotBuilder = $using::query()->setQuery($this->getQuery());
 
             // If pivot is not customized...
-            if ($pivot->getTable() !== $this->getTable()) {
+            if ($using === Pivot::class) {
                 // ... set proper intermediate table name
                 $pivotBuilder->getModel()->setTable($this->getTable());
             }
