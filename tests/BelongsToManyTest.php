@@ -2,9 +2,11 @@
 
 namespace Tests;
 
+use Codewiser\Database\Eloquent\Concerns\HasPivot;
 use Codewiser\Database\PivotServiceProvider;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Orchestra\Testbench\TestCase;
 use Workbench\App\Builder\UserBuilder;
 use Workbench\App\Models\Extended\Organization as OrganizationExt;
@@ -59,7 +61,7 @@ class BelongsToManyTest extends TestCase
         dump($sql1->toSql());
 
         $sql2 = OrganizationExt::query()->whereHas('users',
-            fn(BelongsToMany|UserBuilder $builder) => $builder->pivot(
+            fn(BelongsToMany|HasPivot $builder) => $builder->pivot(
                 fn(Builder $builder) => $builder->where($builder->qualifyColumn('role'), 'accountant')
             )
         );
@@ -71,7 +73,7 @@ class BelongsToManyTest extends TestCase
         dump($sql3->toSql());
 
         $sql4 = OrganizationInt::query()->whereHas('users',
-            fn(BelongsToMany|UserBuilder $builder) => $builder->pivot(
+            fn(BelongsToMany|HasPivot $builder) => $builder->pivot(
                 fn(Builder $builder) => $builder->where('role', 'accountant')
             )
         );
