@@ -14,16 +14,12 @@ Take a look on examples.
 Here we deal with a `Relation` instance:
 
 ```php
-use Illuminate\Database\Eloquent\Builder;
-
 $user->organizations()->wherePivot('role', 'accountant');
 ```
 
 But here we deal with a `Builder` instance:
 
 ```php
-use Illuminate\Database\Eloquent\Builder;
-
 User::query()
     ->where('users.role', 'superuser')
     ->whereHas(
