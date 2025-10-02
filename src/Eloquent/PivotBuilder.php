@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Extend pivot builder from this. It qualifies pivot columns names.
+ *
+ * @deprecated
  */
 abstract class PivotBuilder extends Builder
 {

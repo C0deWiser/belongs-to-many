@@ -2,19 +2,24 @@
 
 namespace Workbench\App\Models\Extended;
 
-use Illuminate\Contracts\Database\Eloquent\Builder;
+use Codewiser\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Attributes\UseEloquentBuilder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Workbench\App\Builder\OrganizationBuilder;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Workbench\App\Builder\TagBuilder;
 use Workbench\App\Builder\UserBuilder;
-use Workbench\App\Models\User;
 
-#[UseEloquentBuilder(OrganizationBuilder::class)]
+#[UseEloquentBuilder(Builder::class)]
 class Organization extends Model
 {
     public function users(): BelongsToMany|UserBuilder
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function tags(): MorphToMany|TagBuilder
+    {
+        return $this->morphToMany(Tag::class, 'taggable');
     }
 }

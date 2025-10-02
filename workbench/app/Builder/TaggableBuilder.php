@@ -6,7 +6,7 @@ namespace Workbench\App\Builder;
 
 use Illuminate\Database\Eloquent\Builder;
 
-class EmployeeBuilder extends Builder
+class TaggableBuilder extends Builder
 {
 
 }
