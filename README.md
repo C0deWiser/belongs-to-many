@@ -22,9 +22,8 @@ But here we deal with a `Builder` instance:
 ```php
 User::query()
     ->where('users.role', 'superuser')
-    ->whereHas(
-        'organizations', 
-        fn(Builder $builder) => $builder->where('organization_user.role', 'accountant')
+    ->whereHas('organizations', fn(Builder $builder) => $builder
+        ->where('organization_user.role', 'accountant')
     );
 ```
 
