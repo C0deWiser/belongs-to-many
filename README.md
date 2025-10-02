@@ -110,8 +110,10 @@ Organization::query()->whereHas('users',
 
 ## Implementation
 
-You MUST use an extended builder for both models that consists in 
-`BelongsToMany` relation. These custom builders MUST use 
-`\Codewiser\Database\Eloquent\Traits\HasExtendedBelongsToMany` trait.
+You either MUST use `Codewiser\Database\Eloquent\Builder` builder for both 
+models that consists in `BelongsToMany` relation. 
+
+Or you MUST use custom builders with 
+`\Codewiser\Database\Eloquent\Traits\HasExtendedBelongsToMany` trait applied.
 
 This is applicable to `MorphToMany` relations too.
