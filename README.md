@@ -75,6 +75,8 @@ Also, this package provides a new method for `BelongsToMany` class (extended
 with a macro). The `pivot` method provides access to a pivot builder for you 
 to build intermediate query.
 
+Take a look on examples after applying `HasExtendedBelongsToMany` trait.
+
 Here we deal with a `Relation` instance:
 
 ```php
