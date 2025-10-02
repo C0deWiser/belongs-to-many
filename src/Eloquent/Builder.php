@@ -1,7 +1,7 @@
 <?php
 namespace Codewiser\Database\Eloquent;
 
-use Codewiser\Database\Eloquent\Traits\HasExtendedBelongsToMany;
+use Codewiser\Database\Eloquent\Traits\HasPivot;
 
 /**
  * @template TModel of \Illuminate\Database\Eloquent\Model
@@ -10,5 +10,5 @@ use Codewiser\Database\Eloquent\Traits\HasExtendedBelongsToMany;
  */
 class Builder extends \Illuminate\Database\Eloquent\Builder
 {
-    use HasExtendedBelongsToMany;
+    use HasPivot;
 }

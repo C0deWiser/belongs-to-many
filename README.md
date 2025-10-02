@@ -31,7 +31,7 @@ Here we enforced to use qualified column names to escape ambiguity.
 
 **The solution is** to receive `Relation` instance into callback.
 
-We introduce a `HasExtendedBelongsToMany` trait to use it with custom builders.
+We introduce a `HasPivot` trait to use it with custom builders.
 
 With that trait, all `*has` builder's methods, such as `whereHas`,
 `whereDoesntHave`, etc., will send to a callback not a `Builder` instance, but 
@@ -41,7 +41,7 @@ constrain an intermediate query.
 You may apply the trait to a custom builder:
 
 ```php
-use Codewiser\Database\Eloquent\Traits\HasExtendedBelongsToMany;
+use Codewiser\Database\Eloquent\Traits\HasPivot;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -49,7 +49,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class UserBuilder extends Builder
 {
-    use HasExtendedBelongsToMany;
+    use HasPivot;
 }
 ```
 
@@ -75,7 +75,7 @@ Also, this package provides a new method for `BelongsToMany` class (extended
 with a macro). The `pivot` method provides access to a pivot builder for you 
 to build intermediate query.
 
-Take a look on examples after applying `HasExtendedBelongsToMany` trait.
+Take a look on examples after applying `HasPivot` trait.
 
 Here we deal with a `Relation` instance:
 
@@ -114,6 +114,6 @@ You either MUST use `Codewiser\Database\Eloquent\Builder` builder for both
 models that consists in `BelongsToMany` relation. 
 
 Or you MUST use custom builders with 
-`\Codewiser\Database\Eloquent\Traits\HasExtendedBelongsToMany` trait applied.
+`\Codewiser\Database\Eloquent\Traits\HasPivot` trait applied.
 
 This is applicable to `MorphToMany` relations too.
